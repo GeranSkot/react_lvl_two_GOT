@@ -1,93 +1,85 @@
 export default class GotService {
-
     constructor() {
-        this._apiBase = 'https://anapioficeandfire.com/api';
+        this._apiBase = 'https://www.anapioficeandfire.com/api';
     }
 
-    async getResource(url){
+    async getResource(url) {
         const res = await fetch(`${this._apiBase}${url}`);
 
-        if(!res.ok) {
-            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+        if (!res.ok) {
+            throw new Error(`Could not fetch ${url}` +
+                `, received ${res.status}`);
         }
-
         return await res.json();
-    };
-
-    async getAllCharacters(){
-        const res = await this.getResource('/characters?page=5&pageSize=10');
-        return res.map(this._transformCharacter())
     }
 
-    async getCharacter(id){
+    async getAllBooks() {
+        const res = await this.getResource(`/books/`);
+        return res.map(this._transformBook);
+    }
+
+    async getBook(id) {
+        const book = await this.getResource(`/books/${id}/`);
+        return this._transformBook(book);
+    }
+
+    async getAllCharacters() {
+        const res = await this.getResource(`/characters?page=5&pageSize=10`);
+        return res.map(this._transformCharacter);
+    }
+
+    async getCharacter(id) {
         const character = await this.getResource(`/characters/${id}`);
         return this._transformCharacter(character);
     }
 
-    getBooks() {
-        return this.getResource(`/books/`);
+    async getAllHouses() {
+        const res = await this.getResource(`/houses/`);
+        return res.map(this._transformHouse);
     }
 
-    getBook(id) {
-        return this.getResource(`/books/${id}/`);
+    async getHouse(id) {
+        const house = this.getResource(`/houses/${id}/`);
+        return this._transformHouse(house);
     }
 
-    getHouses() {
-        return this.getResource(`/houses/`);
-    }
-
-    getHouse(id) {
-        return this.getResource(`/houses/${id}/`);
-    }
-
-    _transformCharacter(char) {
-        return {
-            name: char.name,
-            gender: char.gender,
-            born: char.born,
-            died: char.died,
-            culture: char.culture
+    isSet(data) {
+        if (data) {
+            return data
+        } else {
+            return 'no data d-_-b'
         }
     }
 
-    _transformHouse(house){
+    _transformCharacter = (char) => {
         return {
-            name: house.name,
-            region: house.region,
-            words: house.words,
-            titles: house.titles,
-            overlord: house.overlord,
-            ancestralWeapons: house.ancestralWeapons
-        }
+            id: this.isSet(char),
+            name: this.isSet(char.name),
+            gender: this.isSet(char.gender),
+            born: this.isSet(char.born),
+            died: this.isSet(char.died),
+            culture: this.isSet(char.culture)
+        };
     }
 
-    _transformBook(book) {
+    _transformHouse = (house) => {
         return {
-            name: book.name,
-            numberOfPages: book.numberOfPages,
-            publisher: book.publisher,
-            released: book.released
-        }
+            id: this.isSet(house),
+            name: this.isSet(house.name),
+            region: this.isSet(house.region),
+            words: this.isSet(house.words),
+            titles: this.isSet(house.titles),
+            ancestralWeapons: this.isSet(house.ancestralWeapons)
+        };
+    }
+
+    _transformBook = (book) => {
+        return {
+            id: this.isSet(book),
+            name: this.isSet(book.name),
+            numberOfPages: this.isSet(book.numberOfPages),
+            publisher: this.isSet(book.publisher),
+            released: this.isSet(book.released)
+        };
     }
 }
-
-// const got = new GotService();
-//
-// got.getAllCharacters()
-//     .then(res => console.log(res));
-//
-// got.getCharacter(130)
-//     .then(res => console.log(res));
-//
-// got.getBooks()
-//     .then(res => console.log(res));
-//
-// got.getBook(4)
-//     .then(res => console.log(res));
-//
-// got.getHouses()
-//     .then(res => console.log(res));
-//
-// got.getHouse(2)
-//     .then(res => console.log(res));
-
